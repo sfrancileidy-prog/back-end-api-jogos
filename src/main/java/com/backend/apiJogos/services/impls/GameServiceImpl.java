@@ -11,7 +11,7 @@ import com.backend.apiJogos.models.Game;
 import com.backend.apiJogos.repositorys.GameRepository;
 import com.backend.apiJogos.services.interfaces.GameService;
 
-import lombok.RequiredArgsConstructor;
+import com.backend.apiJogos.exceptionHandler.exceptions.GameNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public List<GameDto> listar(){
 @Override
 public GameDto buscarPorId(UUID id){
     Game game = gameRepository.findById(id)
-           .orElseThrow(() -> new RuntimeException("Game não encontrado"));
+           .orElseThrow(() -> new GameNotFoundException());
 
     return new GameDto(game.getId(), game.getNome(), game.getGenero());
 }
@@ -47,7 +47,7 @@ public void deletar(UUID id){
 @Override
 public GameDto editar(UUID id, GameDto gameDto){
     Game game = gameRepository.findById(id)
-           .orElseThrow(() -> new RuntimeException("Game não encontrado"));
+           .orElseThrow(() -> new GameNotFoundException());
         
         game.setNome(gameDto.getNome());
         game.setGenero(gameDto.getGenero());

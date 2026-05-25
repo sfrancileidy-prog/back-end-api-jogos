@@ -23,14 +23,19 @@ import lombok.ToString;
 @AllArgsConstructor
 
 public class User {
+
     @Id
-@GeneratedValue(strategy = GenerationType.AUTO)
-private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-@Column(nullable = false)
-private String nome;
+    @Column(nullable = false)
+    private String nome;
 
-public User(String nome){
-    this.nome = nome;
-}
+    @Column(nullable = false, unique = true)
+    private String supabaseUserId;
+
+    public User(String nome, String supabaseUserId){
+        this.nome = nome;
+        this.supabaseUserId = supabaseUserId;
+    }
 }

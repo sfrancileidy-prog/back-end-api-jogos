@@ -22,26 +22,26 @@ public class UserServiceImpl implements UserService{
  }
 
   @Override
-  public UserDto criarUsuario(UserDto userDto){
+public UserDto criarUsuario(UserDto userDto){
     if(userDto == null || userDto.getNome() == null || userDto.getNome().trim().isEmpty()){
-      throw new InvalidUserDataException("Nome do usuário não pode ser nulo ou vazio");
+        throw new InvalidUserDataException("Nome do usuário não pode ser nulo ou vazio");
     }
 
-    if(userRepository.existsByNome(userDto.getNome().trim())){
-      throw new UserJaCadastradoException();
-    }
+    // if(userRepository.existsByNome(userDto.getNome().trim())){
+    //     throw new UserJaCadastradoException();
+    // }
 
-    User user = new User(userDto.getNome().trim());
+    User user = new User(userDto.getNome().trim(), userDto.getSupabaseUserId());
     userRepository.save(user);
+return new UserDto(user.getId(), user.getNome(), user.getSupabaseUserId());
 
-    return new UserDto(user.getId(), user.getNome());
-  }
+}
 
   @Override
   public List<UserDto> listarUsuarios(){
     return userRepository.findAll()
        .stream()
-       .map(user -> new UserDto(user.getId(), user.getNome()))
+       .map(user -> new UserDto(user.getId(), user.getNome(), user.getSupabaseUserId()))
        .collect(Collectors.toList());
 }
 
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService{
     User user = userRepository.findById(id)
           .orElseThrow(() -> new UserNotFoundException());
     
-     return new UserDto(user.getId(), user.getNome());
+     return new UserDto(user.getId(), user.getNome(), user.getSupabaseUserId());
  } 
 
  @Override
@@ -69,35 +69,40 @@ public class UserServiceImpl implements UserService{
 @Override
 public UserDto editarPorId(UserDto userDto, Long id) {
     if(id == null){
-      throw new InvalidUserDataException("ID do usuário não pode ser nulo");
+        throw new InvalidUserDataException("ID do usuário não pode ser nulo");
     }
-    
-    if(userDto == null || userDto.getNome() == null || userDto.getNome().trim().isEmpty()){
-      throw new InvalidUserDataException("Nome do usuário não pode ser nulo ou vazio");
-    }
-    
-    User user = userRepository.findById(id).orElseThrow(()-> new UserNotFoundException());
 
-    if(!user.getNome().equals(userDto.getNome().trim()) && userRepository.existsByNome(userDto.getNome().trim())){
-      throw new UserJaCadastradoException();
+    if(userDto == null || userDto.getNome() == null || userDto.getNome().trim().isEmpty()){
+        throw new InvalidUserDataException("Nome do usuário não pode ser nulo ou vazio");
     }
+
+    User user = userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException());
+
+    // if(!user.getNome().equals(userDto.getNome().trim())
+    //         && userRepository.existsByNome(userDto.getNome().trim())){
+    //     throw new UserJaCadastradoException();
+    // }
 
     user.setNome(userDto.getNome().trim());
     userRepository.save(user);
 
-    return new UserDto(user.getId(), user.getNome());
+    return new UserDto(user.getId(), user.getNome(), user.getSupabaseUserId());
 }
   
 @Override
 public List<UserDto> buscarPorNome(String nome) {
-   if(nome == null || nome.trim().isEmpty()){
-     throw new InvalidUserDataException("Nome de busca não pode ser nulo ou vazio");
-   }
-   
-   return userRepository.findByNomeContaining(nome.trim())
-    .stream()
-    .map(
-      user -> new UserDto(user.getId(),user.getNome())).collect(Collectors.toList()
-    );
+    if(nome == null || nome.trim().isEmpty()){
+        throw new InvalidUserDataException("Nome de busca não pode ser nulo ou vazio");
+    }
+
+    return userRepository.findByNomeContaining(nome.trim())
+        .stream()
+        .map(user -> new UserDto(
+            user.getId(),
+            user.getNome(),
+            user.getSupabaseUserId()
+        ))
+        .collect(Collectors.toList());
 }
 }

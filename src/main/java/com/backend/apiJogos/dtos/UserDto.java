@@ -23,4 +23,7 @@ public class UserDto {
 
     @NotNull(message = "nome não pode ser nulo")
     private String nome;
+
+    @NotNull(message = "supabaseUserId não pode ser nulo")
+    private String supabaseUserId;
 }

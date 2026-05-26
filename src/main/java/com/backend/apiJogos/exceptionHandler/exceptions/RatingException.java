@@ -3,7 +3,7 @@ package com.backend.apiJogos.exceptionHandler.exceptions;
 public class RatingException extends RuntimeException{
 
   public RatingException(){
-    super("Conflito com avaliação!");
+    super("Avaliação invalida!");
   }
 
   public RatingException(String mensagem){

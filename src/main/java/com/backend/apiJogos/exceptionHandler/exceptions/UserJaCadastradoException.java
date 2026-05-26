@@ -3,7 +3,7 @@ package com.backend.apiJogos.exceptionHandler.exceptions;
 public class UserJaCadastradoException extends RuntimeException {
 
   public UserJaCadastradoException() {
-    super("Este nome ja esta em uso!!!");
+    super("Usuario ja cadastrado!");
   }
 
   public UserJaCadastradoException(String mensagem) {

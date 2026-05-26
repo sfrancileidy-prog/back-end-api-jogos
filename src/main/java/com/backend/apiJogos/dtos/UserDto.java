@@ -25,6 +25,5 @@ public class UserDto {
     private String nome;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @NotNull(message = "supabaseUserId não pode ser nulo")
     private String supabaseUserId;
 }

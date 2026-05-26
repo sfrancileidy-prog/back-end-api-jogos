@@ -1,90 +1,41 @@
 package com.backend.apiJogos.controllers;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import com.backend.apiJogos.dtos.UserDto;
-import com.backend.apiJogos.services.impls.UserServiceImpl;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.backend.apiJogos.services.interfaces.UserService;
 
-import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserServiceImpl userService;
 
-    public UserController(UserServiceImpl userServiceImpl){
-    this.userService = userServiceImpl;
-    }
+  private final UserService userService;
 
-    // @PostMapping
-    // public ResponseEntity<?> criar(@RequestBody @Valid UserDto userDto, BindingResult bd){
-    //     if(bd.hasErrors()){
-    //         return ResponseEntity.badRequest().body(bd.getAllErrors());
-    //     }
-    //     UserDto userSalvo = userService.criarUsuario(userDto);
-    //     return ResponseEntity.status(HttpStatus.CREATED).body(userSalvo);
-    // }
-    //
-    // @GetMapping
-    // public ResponseEntity<List<UserDto>> listar(){
-    //     List<UserDto> userDtos = userService.listarUsuarios();
-    //     return ResponseEntity.ok(userDtos);
-    // }
-    //
-
-    @PostMapping
-    public ResponseEntity<?> me(@AuthenticationPrincipal Jwt jwt) {
-      UserDto user = userService.criarOuBuscar(jwt);
-      return ResponseEntity.ok(user);
-    }
-
-    @GetMapping("/debug")
-      public String debug(@RequestHeader("Authorization") String auth) {
-        return auth;
-    }
-  
-    @GetMapping("/buscar-id/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id){
-       UserDto UserDto = userService.buscarPorId(id);
-       return ResponseEntity.ok().body(UserDto);
+  public UserController(UserService userService) {
+    this.userService = userService;
   }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Long id){
-        userService.deletarUsuario(id);
-        return ResponseEntity.noContent().build();
-    }
-
-  @PutMapping("/{id}")
-  public ResponseEntity<?> editar(@RequestBody @Valid UserDto uDto, BindingResult br, @PathVariable Long id){
-    if(br.hasErrors()){
-      return ResponseEntity.badRequest().body(br.getAllErrors());
-    }
-    UserDto userEditado = userService.editarPorId(uDto, id);
-    return ResponseEntity.status(HttpStatus.OK).body(userEditado);
+  @GetMapping("/me")
+  public ResponseEntity<UserDto> me(@AuthenticationPrincipal Jwt jwt) {
+    return ResponseEntity.ok(userService.me(jwt));
   }
 
-  @GetMapping("/buscar-nome/{nome}")
-  public ResponseEntity<List<?>> buscarPorNome(@PathVariable String nome){
-    List<UserDto> listaAproximada = userService.buscarPorNome(nome);
-    return ResponseEntity.ok().body(listaAproximada);
-
+  @PutMapping("/me")
+  public ResponseEntity<UserDto> atualizar(@AuthenticationPrincipal Jwt jwt, @RequestBody @Valid UserDto dto) {
+    return ResponseEntity.ok(
+        userService.atualizarMeuPerfil(jwt, dto));
   }
 
-
-
-
-
-
-
-
+  @DeleteMapping("/me")
+  public ResponseEntity<Void> deletar(@AuthenticationPrincipal Jwt jwt) {
+    userService.deletarMinhaConta(jwt);
+    return ResponseEntity.noContent().build();
+  }
 }

@@ -3,7 +3,7 @@ package com.backend.apiJogos.exceptionHandler.exceptions;
 public class HorasException extends RuntimeException{
 
   public HorasException(){
-    super("conflito com horas!");
+    super("Quantidade de horas invalida!");
   }
 
   public HorasException(String mensagem){

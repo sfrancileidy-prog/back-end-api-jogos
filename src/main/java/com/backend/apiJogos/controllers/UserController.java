@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.*;
 
 import com.backend.apiJogos.dtos.UserDto;
 import com.backend.apiJogos.services.impls.UserServiceImpl;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -21,21 +25,33 @@ public class UserController {
     this.userService = userServiceImpl;
     }
 
+    // @PostMapping
+    // public ResponseEntity<?> criar(@RequestBody @Valid UserDto userDto, BindingResult bd){
+    //     if(bd.hasErrors()){
+    //         return ResponseEntity.badRequest().body(bd.getAllErrors());
+    //     }
+    //     UserDto userSalvo = userService.criarUsuario(userDto);
+    //     return ResponseEntity.status(HttpStatus.CREATED).body(userSalvo);
+    // }
+    //
+    // @GetMapping
+    // public ResponseEntity<List<UserDto>> listar(){
+    //     List<UserDto> userDtos = userService.listarUsuarios();
+    //     return ResponseEntity.ok(userDtos);
+    // }
+    //
+
     @PostMapping
-    public ResponseEntity<?> criar(@RequestBody @Valid UserDto userDto, BindingResult bd){
-        if(bd.hasErrors()){
-            return ResponseEntity.badRequest().body(bd.getAllErrors());
-        }
-        UserDto userSalvo = userService.criarUsuario(userDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userSalvo);
+    public ResponseEntity<?> me(@AuthenticationPrincipal Jwt jwt) {
+      UserDto user = userService.criarOuBuscar(jwt);
+      return ResponseEntity.ok(user);
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserDto>> listar(){
-        List<UserDto> userDtos = userService.listarUsuarios();
-        return ResponseEntity.ok(userDtos);
+    @GetMapping("/debug")
+      public String debug(@RequestHeader("Authorization") String auth) {
+        return auth;
     }
-
+  
     @GetMapping("/buscar-id/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
        UserDto UserDto = userService.buscarPorId(id);

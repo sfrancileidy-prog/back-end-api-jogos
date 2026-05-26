@@ -12,6 +12,7 @@ import com.backend.apiJogos.exceptionHandler.exceptions.InvalidUserDataException
 import com.backend.apiJogos.models.User;
 import com.backend.apiJogos.repositorys.UserRepository;
 import com.backend.apiJogos.services.interfaces.UserService;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -22,20 +23,17 @@ public class UserServiceImpl implements UserService{
  }
 
   @Override
-public UserDto criarUsuario(UserDto userDto){
-    if(userDto == null || userDto.getNome() == null || userDto.getNome().trim().isEmpty()){
-        throw new InvalidUserDataException("Nome do usuário não pode ser nulo ou vazio");
-    }
-
-    // if(userRepository.existsByNome(userDto.getNome().trim())){
-    //     throw new UserJaCadastradoException();
-    // }
-
-    User user = new User(userDto.getNome().trim(), userDto.getSupabaseUserId());
-    userRepository.save(user);
-return new UserDto(user.getId(), user.getNome(), user.getSupabaseUserId());
-
-}
+  public UserDto criarOuBuscar(Jwt jwt) {
+    String supabaseId = jwt.getSubject();
+    User user = userRepository.findBySupabaseUserId(supabaseId)
+            .orElseGet(() -> {
+                User novo = new User();
+                novo.setSupabaseUserId(supabaseId);
+                novo.setNome("Novo usuário");
+                return userRepository.save(novo);
+            });
+    return new UserDto(user.getId(), user.getNome(), user.getSupabaseUserId());
+  }
 
   @Override
   public List<UserDto> listarUsuarios(){
